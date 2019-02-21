@@ -1,0 +1,9 @@
+<launch>
+
+    <node pkg="sigverse_hsr_package" type="sigverse_hsr_arm_controller" name="sigverse_hsr_arm_controller" output="screen"/>
+    <node pkg="sigverse_hsr_package" type="sigverse_hsr_gripper_controller" name="sigverse_hsr_gripper_controller" output="screen"/>
+    <node pkg="sigverse_hsr_package" type="sigverse_hsr_head_controller" name="sigverse_hsr_head_controller" output="screen"/>
+    <node pkg="sigverse_hsr_package" type="sigverse_hsr_omni_controller" name="sigverse_hsr_omni_controller" output="screen"/>
+    <node pkg="sigverse_hsr_package" type="sigverse_hsr_list_controllers" name="sigverse_hsr_list_controllers" output="screen"/>
+
+</launch>
