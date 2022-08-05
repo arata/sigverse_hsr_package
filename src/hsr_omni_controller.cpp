@@ -1,4 +1,9 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
 #include <ros/ros.h>
+#include <ros/duration.h>
+#include <std_msgs/Float64.h>
 #include <sensor_msgs/JointState.h>
 #include <actionlib/server/simple_action_server.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
@@ -23,7 +28,7 @@ protected:
     //joint angle
     double omni_odom_x;
     double omni_odom_y;
-    double omni_odom_z;
+    double omni_odom_t;
 
 public:
 
@@ -39,7 +44,7 @@ public:
     void executeCB(const control_msgs::FollowJointTrajectoryGoalConstPtr &goal_msg)
     {
         bool success = true;
-        for(int i=1; i<=goal_msg->trajectory.points.size(); i++){
+        for(int i = 0; i < goal_msg->trajectory.points.size(); i++){
 
             if (as_.isPreemptRequested() || !ros::ok()){
                 ROS_INFO("%s: Preempted", action_name_.c_str());
@@ -57,12 +62,14 @@ public:
             this->pub_omni_command.publish(traj);
 
             //send feedback
-            feedback.header = goal_msg->trajectory.header;
-            feedback.joint_names = goal_msg->trajectory.joint_names;
-            feedback.desired.positions = goal_msg->trajectory.points[i].positions;
-            feedback.actual.positions.clear();
-            feedback.actual.positions.push_back(this->omni_odom_x);//あとで修正
-            as_.publishFeedback(feedback);
+            // feedback.header = goal_msg->trajectory.header;
+            // feedback.joint_names = goal_msg->trajectory.joint_names;
+            // feedback.desired.positions = goal_msg->trajectory.points[i].positions;
+            // feedback.actual.positions.clear();
+            // feedback.actual.positions.push_back(this->omni_odom_t);//あとで修正
+            // feedback.actual.positions.push_back(this->omni_odom_x);//あとで修正
+            // feedback.actual.positions.push_back(this->omni_odom_y);//あとで修正
+            // as_.publishFeedback(feedback);
 
             //sleep
             goal_msg->trajectory.points[i].time_from_start.sleep();
@@ -78,9 +85,13 @@ public:
 
     void jointStateCallback(const sensor_msgs::JointState::ConstPtr& joint_state){//あとで修正
         for(int i=0; i<joint_state->name.size(); i++){
-            if(joint_state->name[i] == "arm_lift_joint"){
+            if(joint_state->name[i] == "odom_x"){
                 this->omni_odom_x = joint_state->position[i];
-            }//if
+            }else if(joint_state->name[i] == "odom_y"){
+              this->omni_odom_y = joint_state->position[i];
+            }else if(joint_state->name[i] == "odom_t"){
+              this->omni_odom_t = joint_state->position[i];
+            }
         }//for
     }//jointStateCallback
 
